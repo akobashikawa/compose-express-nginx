@@ -7,7 +7,7 @@ app.use(express.urlencoded({ extended: true }));
 // cors middleware
 app.use(cors());
 
-app.get('/hello', (req, res) => {
+app.get('/api/hello', (req, res) => {
     const name = req.query.name?.trim() || 'World';
     if (name.length > 50) {
         return res.status(400).json({ error: 'Name is too long' });
