@@ -46,12 +46,12 @@ docker-compose up --build
 ## Servicios
 
 ### hello-service (Backend)
-- Puerto: 3000
+- Puerto: 3001 (externo), 3000 (interno)
 - Endpoint: `/api/hello?name=<nombre>`
 - Tecnología: Express.js
 
 ### hello-app (Frontend)
-- Puerto: 80
+- Puerto: 8080 (externo), 80 (interno)
 - Tecnología: Vue.js + Nginx
 - Sirve la interfaz de usuario y actúa como proxy inverso
 
@@ -101,8 +101,8 @@ cd hello-app
 ## Pruebas
 
 Acceder a la aplicación:
-- Frontend: `http://localhost`
-- API Backend: `http://localhost:3000/api/hello?name=Usuario`
+- Frontend: `http://localhost:8080`
+- API Backend: `http://localhost:3001/api/hello?name=Usuario`
 
 ## Licencia
 
