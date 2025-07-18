@@ -14,11 +14,15 @@ services:
       - ./hello-service:/usr/src/app
       - /usr/src/app/node_modules
     restart: unless-stopped
+    networks:
+      - dokploy-network
 
   hello-app:
     build:
       context: ./hello-app
       dockerfile: Dockerfile
+    environment:
+      - API_BASE_URL=http://express-hello-svc.akcstudio.com/api
     ports:
       - "8080:80"       # Cambiado de 80:80 a 8080:80
     volumes:
@@ -28,3 +32,9 @@ services:
     depends_on:
       - hello-service
     restart: unless-stopped
+    networks:
+      - dokploy-network
+
+networks:
+  dokploy-network:
+    external: true

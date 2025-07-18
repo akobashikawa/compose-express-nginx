@@ -1,11 +1,16 @@
-FROM nginx:stable-alpine
+FROM nginx:alpine
 
-# Remove default nginx config
-RUN rm /etc/nginx/conf.d/default.conf
+# Instalar envsubst
+RUN apk add --no-cache gettext
 
-# Copy custom configuration
+# Copiar archivos estáticos
+COPY html/ /usr/share/nginx/html/
 COPY nginx.conf /etc/nginx/nginx.conf
 COPY proxy_params /etc/nginx/proxy_params
 
-# Copy static files
-COPY html/ /usr/share/nginx/html/
+# Copiar script de entrada
+COPY docker-entrypoint.sh /
+RUN chmod +x /docker-entrypoint.sh
+
+# Ejecutar script de entrada
+CMD ["/docker-entrypoint.sh"]
