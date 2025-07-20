@@ -1,24 +1,15 @@
-# Usar una imagen base con la versión LTS de Node
-FROM node:20-slim
+# hello-service/Dockerfile
 
-# Crear directorio de la aplicación
+# Etapa de construcción
+FROM node:20-alpine AS builder
 WORKDIR /usr/src/app
+COPY package*.json ./          
+RUN npm install --omit=dev     
 
-# Copiar archivos de dependencias
-COPY package*.json ./
-
-# Instalar dependencias
-RUN npm ci --only=production
-
-# Copiar código fuente
-COPY . .
-
-# Exponer puerto
-EXPOSE 3000
-
-# Definir variables de entorno
-ENV NODE_ENV=production
-ENV PORT=3000
-
-# Comando para iniciar la aplicación
-CMD ["node", "server.js"]
+# Etapa de producción
+FROM node:20-alpine            
+WORKDIR /usr/src/app
+COPY --from=builder /usr/src/app/node_modules ./node_modules
+COPY . .                       
+EXPOSE 3000                    
+CMD ["npm", "start"]           

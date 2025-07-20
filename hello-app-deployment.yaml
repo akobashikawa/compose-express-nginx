@@ -1,0 +1,62 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: D:\bin\kompose.exe convert
+    kompose.version: 1.36.0 (ae2a39403)
+  labels:
+    io.kompose.service: hello-app
+  name: hello-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: hello-app
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: D:\bin\kompose.exe convert
+        kompose.version: 1.36.0 (ae2a39403)
+      labels:
+        io.kompose.service: hello-app
+    spec:
+      containers:
+        - env:
+            - name: API_BASE_URL
+              value: http://hello-service:3000/api
+          image: acrhello.azurecr.io/express-hello-app:v1
+          imagePullPolicy: Always
+          name: hello-app
+          ports:
+            - containerPort: 80
+              protocol: TCP
+          # volumeMounts:
+          #   - mountPath: /usr/share/nginx/html
+          #     name: hello-app-cm0
+          #   - mountPath: /etc/nginx/nginx.conf
+          #     name: hello-app-cm1
+          #     readOnly: true
+          #     subPath: nginx.conf
+          #   - mountPath: /etc/nginx/proxy_params
+          #     name: hello-app-cm2
+          #     readOnly: true
+          #     subPath: proxy_params
+      restartPolicy: Always
+      # volumes:
+      #   - configMap:
+      #       name: hello-app-cm0
+      #     name: hello-app-cm0
+      #   - configMap:
+      #       items:
+      #         - key: nginx.conf
+      #           path: nginx.conf
+      #       name: hello-app-cm1
+      #     name: hello-app-cm1
+      #   - configMap:
+      #       items:
+      #         - key: proxy_params
+      #           path: proxy_params
+      #       name: hello-app-cm2
+      #     name: hello-app-cm2

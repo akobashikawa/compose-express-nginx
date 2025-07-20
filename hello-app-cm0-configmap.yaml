@@ -1,0 +1,39 @@
+apiVersion: v1
+data:
+  config.template.js: |-
+    const API_BASE_URL = '${API_BASE_URL}';
+
+    export { API_BASE_URL };
+  index.html: |-
+    <!DOCTYPE html>
+    <html lang="es">
+
+    <head>
+    	<meta charset="UTF-8">
+    	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+    	<title>Hello</title>
+
+    	<link rel="stylesheet" href="https://matcha.mizu.sh/matcha.css">
+    	<style>
+    	</style>
+    </head>
+
+    <body>
+    	<div id="app"></div>
+
+    	<script type="importmap">
+            { "imports": {
+              "vue": "https://unpkg.com/vue@3/dist/vue.esm-browser.js",
+              "axios": "https://cdn.jsdelivr.net/npm/axios@1.6.7/dist/esm/axios.min.js"
+            } }
+        </script>
+
+    	<script type="module" src="./js/main.js"></script>
+    </body>
+
+    </html>
+kind: ConfigMap
+metadata:
+  labels:
+    io.kompose.service: hello-app
+  name: hello-app-cm0

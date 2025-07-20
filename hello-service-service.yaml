@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    kompose.cmd: D:\bin\kompose.exe convert
+    kompose.version: 1.36.0 (ae2a39403)
+  labels:
+    io.kompose.service: hello-service
+  name: hello-service
+spec:
+  ports:
+    - name: "express"
+      port: 3000
+      targetPort: 3000
+  selector:
+    io.kompose.service: hello-service

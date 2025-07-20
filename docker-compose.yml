@@ -22,7 +22,7 @@ services:
       context: ./hello-app
       dockerfile: Dockerfile
     environment:
-      - API_BASE_URL=http://express-hello-svc.akcstudio.com/api
+      - API_BASE_URL=http://hello-service:3000/api
     ports:
       - "8080:80"       # Cambiado de 80:80 a 8080:80
     volumes:
