@@ -113,7 +113,7 @@ metadata:
     # traefik.ingress.kubernetes.io/redirect-entrypoint: websecure
 spec:
   rules:
-  # - host: your-domain-or-ip.com # Reemplaza con un dominio si tienes uno, o quita esta línea para usar solo la IP
+  - # host: your-domain-or-ip.com # Reemplaza con un dominio si tienes uno, o quita esta línea para usar solo la IP
     http:
       paths:
       - path: /
