@@ -1,0 +1,127 @@
+---
+# -------------------------------------------------------------
+# 1. Servicio Backend: hello-service (Express.js)
+# -------------------------------------------------------------
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hello-service
+  labels:
+    app: hello-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: hello-service
+  template:
+    metadata:
+      labels:
+        app: hello-service
+    spec:
+      containers:
+      - name: hello-service
+        image:  127.0.0.1:31996/express-hello-svc:latest
+        ports:
+        - containerPort: 3000
+        env:
+        - name: NODE_ENV
+          value: "production"
+        - name: PORT
+          value: "3000"
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: hello-service-svc
+  labels:
+    app: hello-service
+spec:
+  selector:
+    app: hello-service
+  ports:
+    - protocol: TCP
+      port: 3000 # Puerto del servicio interno en el clúster
+      targetPort: 3000 # Puerto que el contenedor está escuchando
+  # No necesitamos un LoadBalancer aquí, ya que hello-app accederá internamente.
+
+---
+# -------------------------------------------------------------
+# 2. Servicio Frontend: hello-app (Nginx + Vue CDN)
+# -------------------------------------------------------------
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hello-app
+  labels:
+    app: hello-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: hello-app
+  template:
+    metadata:
+      labels:
+        app: hello-app
+    spec:
+      containers:
+      - name: hello-app
+        image:  127.0.0.1:31996/express-hello-app:latest
+        ports:
+        - containerPort: 80 # Nginx expone el puerto 80
+        env:
+        # Importante: API_BASE_URL ahora apunta al servicio interno de K8s.
+        # 'hello-service-svc' es el nombre del Service que creamos arriba.
+        - name: API_BASE_URL
+          value: "http://hello-service-svc:3000/api"
+        # Los volumes de bind mount para nginx.conf, proxy_params y html
+        # deben ser manejados por el Dockerfile, como ya lo haces.
+        # restart: unless-stopped es manejado por el Deployment
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: hello-app-svc
+  labels:
+    app: hello-app
+spec:
+  selector:
+    app: hello-app
+  ports:
+    - protocol: TCP
+      port: 80 # Puerto del servicio interno
+      targetPort: 80 # Puerto del contenedor Nginx
+  type: LoadBalancer # Para exponer este servicio externamente vía Klipper-lb
+
+---
+# -------------------------------------------------------------
+# 3. Ingress para acceso externo (opcional, pero recomendado)
+# -------------------------------------------------------------
+# Aunque el Service de hello-app sea de tipo LoadBalancer,
+# usar un Ingress es una práctica más común y flexible,
+# especialmente si planeas tener múltiples aplicaciones o dominios.
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: hello-app-ingress
+  annotations:
+    # Esta anotación le dice a Kubernetes que use Traefik como Ingress Controller
+    kubernetes.io/ingress.class: traefik
+    # Si quieres que Traefik te redirija de HTTP a HTTPS, descomenta la siguiente línea
+    # traefik.ingress.kubernetes.io/redirect-entrypoint: websecure
+spec:
+  rules:
+  - # host: your-domain-or-ip.com # Reemplaza con un dominio si tienes uno, o quita esta línea para usar solo la IP
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: hello-app-svc # Apunta al Service de hello-app
+            port:
+              number: 80
+  # Si usas host: your-domain-or-ip.com, también necesitarías configurar TLS (cert-manager)
+  # para HTTPS, que es un paso más avanzado. Por ahora, nos enfocamos en HTTP.
